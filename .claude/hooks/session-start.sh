@@ -1,0 +1,1 @@
+/Users/abhikashyap10/ObsidianVault/_brain/hooks/session-start.sh

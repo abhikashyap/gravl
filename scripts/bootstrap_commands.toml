@@ -1,0 +1,18 @@
+# Per-project shell commands exposed to agents via the kb_bootstrap envelope.
+# Agents read envelope.commands so they never hardcode paths or runners.
+#
+# Customize these for your project. Left-hand side is the semantic key agents
+# look up ("run", "test", etc.); right-hand side is the actual shell command.
+
+[commands]
+# Primary entry point — what does "run this project" mean?
+run       = "echo 'TODO: define run command'"
+
+# Tests
+test      = "echo 'TODO: define test command'"
+
+# Linting / type checks
+lint      = "echo 'TODO: define lint command'"
+
+# Kill running processes (cleanup before re-run)
+kill_runs = "echo 'TODO: define kill command'"

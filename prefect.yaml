@@ -1,0 +1,29 @@
+# gravl — Prefect deployment config
+# Workspace: markthedata.prefect.cloud
+# Work pool: gravl-home (process type, runs on the home Linux box)
+#
+# Deploy from this directory: `uv run prefect deploy --all`
+# Run worker on the box:      `uv run prefect worker start --pool gravl-home`
+
+name: gravl
+prefect-version: 3.0.0
+
+# Pull step: the worker already has the repo on local disk (same LAN as dev),
+# so just set the working directory. If the worker needs to clone from git,
+# swap this for a prefect.deployments.steps.git_clone step.
+pull:
+  - prefect.deployments.steps.set_working_directory:
+      directory: /Users/abhikashyap10/gravl
+
+deployments:
+  - name: gravl-shopify-daily
+    entrypoint: src/gravl/orchestration/flows/shopify_pull.py:shopify_flow
+    work_pool:
+      name: gravl-home
+    tags:
+      - gravl
+      - shopify
+    schedules:
+      - cron: "0 4 * * *"
+        timezone: "Asia/Kolkata"
+        active: true

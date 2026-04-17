@@ -11,3 +11,15 @@ wheels/
 
 # Claude local settings (per-user)
 .claude/settings.local.json
+
+# Environment / secrets
+.env
+.env.local
+secrets/
+key.json
+key*.json
+
+# Claude session state (per-user, machine-local)
+.claude/memory/
+.claude/sessions/
+.claude/session-state.md

@@ -306,6 +306,29 @@ CREATE TABLE IF NOT EXISTS bronze_whatsapp_events (
 CREATE INDEX IF NOT EXISTS idx_bwa_events_type ON bronze_whatsapp_events (event_type, received_at DESC);
 CREATE INDEX IF NOT EXISTS idx_bwa_events_unprocessed ON bronze_whatsapp_events (received_at) WHERE processed_at IS NULL;
 
+CREATE TABLE IF NOT EXISTS bronze_eshopbox_events (
+    id                 BIGSERIAL PRIMARY KEY,
+    source_event_id    TEXT UNIQUE NOT NULL,
+    event_type         TEXT,
+    raw_json           JSONB NOT NULL,
+    received_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    processed_at       TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS idx_beb_events_type ON bronze_eshopbox_events (event_type, received_at DESC);
+CREATE INDEX IF NOT EXISTS idx_beb_events_unprocessed ON bronze_eshopbox_events (received_at) WHERE processed_at IS NULL;
+
+CREATE TABLE IF NOT EXISTS bronze_cashfree_events (
+    id           BIGSERIAL PRIMARY KEY,
+    event_type   TEXT NOT NULL,
+    external_id  TEXT,
+    raw_json     JSONB NOT NULL,
+    received_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    processed_at TIMESTAMPTZ,
+    UNIQUE (event_type, external_id)
+);
+CREATE INDEX IF NOT EXISTS idx_bcf_events_type ON bronze_cashfree_events (event_type, received_at DESC);
+CREATE INDEX IF NOT EXISTS idx_bcf_events_unprocessed ON bronze_cashfree_events (received_at) WHERE processed_at IS NULL;
+
 -- ── SEED: integrations registry ──────────────────────────────────
 
 INSERT INTO integrations (slug, kind, display_name) VALUES

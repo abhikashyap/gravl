@@ -32,6 +32,81 @@ def _is_retryable(exc: BaseException) -> bool:
     return False
 
 
+class WABAClient:
+    """WABA-level operations: template submit, list, delete, status."""
+
+    def __init__(self, env: str = "prod") -> None:
+        self.token = get_cred("meta_whatsapp", "system_user_token", env)
+        self.waba_id = get_cred("meta_whatsapp", "waba_id", env)
+        self._client = httpx.Client(
+            base_url=BASE_URL,
+            headers={"Authorization": f"Bearer {self.token}"},
+            timeout=30.0,
+        )
+
+    def close(self) -> None:
+        self._client.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        self.close()
+
+    def _parse(self, resp: httpx.Response) -> dict[str, Any]:
+        try:
+            body = resp.json()
+        except ValueError:
+            body = {"raw": resp.text}
+        if resp.status_code >= 400:
+            raise WhatsAppAPIError(resp.status_code, body)
+        return body
+
+    def list_templates(
+        self,
+        fields: str = "name,status,category,language,rejected_reason,id",
+        limit: int = 100,
+    ) -> list[dict[str, Any]]:
+        r = self._client.get(
+            f"/{self.waba_id}/message_templates",
+            params={"fields": fields, "limit": limit},
+        )
+        return self._parse(r).get("data", [])
+
+    def get_template(self, name: str) -> list[dict[str, Any]]:
+        r = self._client.get(
+            f"/{self.waba_id}/message_templates",
+            params={
+                "fields": "name,status,rejected_reason,components,category,language,id",
+                "name": name,
+            },
+        )
+        return self._parse(r).get("data", [])
+
+    def submit_template(
+        self,
+        name: str,
+        category: str,
+        language: str,
+        components: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        payload = {
+            "name": name,
+            "category": category,
+            "language": language,
+            "components": components,
+        }
+        r = self._client.post(f"/{self.waba_id}/message_templates", json=payload)
+        return self._parse(r)
+
+    def delete_template(self, name: str) -> dict[str, Any]:
+        r = self._client.delete(
+            f"/{self.waba_id}/message_templates",
+            params={"name": name},
+        )
+        return self._parse(r)
+
+
 def test_connection() -> dict[str, Any]:
     """Hook for scripts/onboard.py — verifies the phone number ID is reachable."""
     with WhatsAppClient() as c:

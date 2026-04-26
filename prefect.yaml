@@ -27,3 +27,27 @@ deployments:
       - cron: "0 4 * * *"
         timezone: "Asia/Kolkata"
         active: true
+
+  - name: gravl-eshopbox-daily
+    entrypoint: src/gravl/orchestration/flows/eshopbox_pull.py:eshopbox_flow
+    work_pool:
+      name: gravl-home
+    tags:
+      - gravl
+      - eshopbox
+    schedules:
+      - cron: "15 4 * * *"
+        timezone: "Asia/Kolkata"
+        active: true
+
+  - name: gravl-cashfree-daily
+    entrypoint: src/gravl/orchestration/flows/cashfree_pull.py:cashfree_flow
+    work_pool:
+      name: gravl-home
+    tags:
+      - gravl
+      - cashfree
+    schedules:
+      - cron: "30 4 * * *"
+        timezone: "Asia/Kolkata"
+        active: true
